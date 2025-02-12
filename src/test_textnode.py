@@ -15,13 +15,13 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(node, node2)
     
     def test_different_url(self):
-        node = TextNode("This is a text node", TextType.NORMAL, "https://www.google.com")
-        node2 = TextNode("This is a text node", TextType.NORMAL, "https://www.spikewinn.com")
+        node = TextNode("This is a text node", TextType.TEXT, "https://www.google.com")
+        node2 = TextNode("This is a text node", TextType.TEXT, "https://www.spikewinn.com")
         self.assertNotEqual(node, node2)
 
     def test_wrong_text_type(self):
         node = TextNode("This is a text node", "normal", "https://www.spikewinn.com")
-        node2 = TextNode("This is a text node", TextType.NORMAL, "https://www.spikewinn.com")
+        node2 = TextNode("This is a text node", TextType.TEXT, "https://www.spikewinn.com")
         self.assertNotEqual(node, node2)
 
 

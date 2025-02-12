@@ -35,3 +35,6 @@ class TestParentNode(unittest.TestCase):
         paragraph = ParentNode("p", [i_leaf, and_leaf, b_leaf])
         html = ParentNode("html", [paragraph, paragraph], {"lang": "en"})
         self.assertEqual(html.to_html(), '<html lang="en"><p><i>italics</i> and <b>boold</b></p><p><i>italics</i> and <b>boold</b></p></html>')
+
+if __name__ == "__main__":
+    unittest.main()

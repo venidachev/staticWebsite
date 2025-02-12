@@ -24,3 +24,6 @@ class TestLeafNode(unittest.TestCase):
     def test_no_value(self):
         with self.assertRaises(ValueError):
             leaf = LeafNode("p", None)
+
+if __name__ == "__main__":
+    unittest.main()
