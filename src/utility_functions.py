@@ -41,10 +41,50 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
     return return_list
 
 def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
-    pass
+    return split_nodes_process(old_nodes, "image")
 
 def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
-    pass
+    return split_nodes_process(old_nodes, "link")
+
+def split_nodes_process(old_nodes: list[TextNode], opt: str) -> list[TextNode]:
+    if opt == "link":
+        text_type = TextType.LINK
+        split_start = "["
+        splitter_func = extract_markdown_links
+    elif opt == "image":
+        text_type = TextType.IMAGE
+        split_start = "!["
+        splitter_func = extract_markdown_images
+    else:
+        raise ValueError(f"Invalid split_nodes_process option: {opt}")
+
+    return_list: list[TextNode] = []
+
+    for node in old_nodes:
+        split_nodes_list = splitter_func(node.text)
+        if len(split_nodes_list) == 0:
+            return_list.append(node)
+            continue
+
+        text_to_split = node.text
+        for split_node in split_nodes_list:
+            text = split_node[0]
+            url = split_node[1]
+
+            sections = text_to_split.split(f"{split_start}{text}]({url})", 1)
+
+            text_before_link = sections[0]
+            text_to_split = sections[1] if len(sections) > 1 else ""
+
+            list_to_extend = []
+            if text_before_link:
+                list_to_extend.append(TextNode(text_before_link, TextType.TEXT))
+            list_to_extend.append(TextNode(text, text_type, url))
+
+            return_list.extend(list_to_extend)
+        if text_to_split:
+            return_list.append(TextNode(text_to_split, TextType.TEXT))
+    return return_list
 
 def extract_markdown_images(text: str) -> list[tuple]:
     pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"

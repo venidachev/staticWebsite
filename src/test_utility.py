@@ -1,5 +1,5 @@
 import unittest
-from utility_functions import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from utility_functions import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
 from textnode import TextNode, TextType
 from leafnode import LeafNode
 
@@ -105,6 +105,73 @@ class TestImageAndLinkExtraction(unittest.TestCase):
         extracted_links = extract_markdown_links(text)
         expected_output = [("link 1", "url tbh"), ("link2", "imagine this is also a url")]
         self.assertEqual(extracted_links, expected_output)
+
+class TestImageAndLinkNodeSplitting(unittest.TestCase):
+    def test_link_splitting(self):
+        node = TextNode("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)", TextType.TEXT)
+        new_nodes = split_nodes_link([node])
+        expected = [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"),
+        ]
+        self.assertEqual(new_nodes, expected)
+    
+    def test_link_splitting_with_text_at_end(self):
+        node = TextNode("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) and then some!", TextType.TEXT)
+        new_nodes = split_nodes_link([node])
+        expected = [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"),
+            TextNode(" and then some!", TextType.TEXT)
+        ]
+        self.assertEqual(new_nodes, expected)
+    def test_image_splitting_with_text_at_end(self):
+        node = TextNode("This is text with a link ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev) and then some!", TextType.TEXT)
+        new_nodes = split_nodes_image([node])
+        expected = [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("to youtube", TextType.IMAGE, "https://www.youtube.com/@bootdotdev"),
+            TextNode(" and then some!", TextType.TEXT)
+        ]
+        self.assertEqual(new_nodes, expected)
+    def test_image_splitting(self):
+        node = TextNode("This is text with a link ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)", TextType.TEXT)
+        new_nodes = split_nodes_image([node])
+        expected = [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("to youtube", TextType.IMAGE, "https://www.youtube.com/@bootdotdev"),
+        ]
+        self.assertEqual(new_nodes, expected)
+    def test_image_splitting_no_image(self):
+        node = TextNode("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)", TextType.TEXT)
+        new_nodes = split_nodes_image([node])
+        expected = [
+            TextNode("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)", TextType.TEXT),
+        ]
+        self.assertEqual(new_nodes, expected)
+    def test_link_splitting_no_link(self):
+        node = TextNode("This is text with a link ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)", TextType.TEXT)
+        new_nodes = split_nodes_link([node])
+        expected = [
+            TextNode("This is text with a link ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)", TextType.TEXT),
+        ]
+        self.assertEqual(new_nodes, expected)
+    def test_link_splitting_only_link(self):
+        node = TextNode("[to boot dev](https://www.boot.dev)", TextType.TEXT)
+        new_nodes = split_nodes_link([node])
+        expected = [
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+        ]
+        self.assertEqual(new_nodes, expected)
+
 
 # Run the tests
 if __name__ == "__main__":
