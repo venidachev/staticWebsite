@@ -10,7 +10,7 @@ class TextType(Enum):
     IMAGE = "image"
 
 class TextNode:
-    def __init__(self, text, type: TextType, url=None):
+    def __init__(self, text: str, type: TextType, url: str = None):
         self.text = text
         self.type = type
         self.url = url
