@@ -1,5 +1,5 @@
 import unittest
-from utility_functions import text_node_to_html_node, split_nodes_delimiter
+from utility_functions import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 from textnode import TextNode, TextType
 from leafnode import LeafNode
 
@@ -68,6 +68,43 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         ]
         new_nodes = split_nodes_delimiter([node1, node2, node3], "`", TextType.CODE)
         self.assertEqual(new_nodes, expected_nodes)
+
+class TestImageAndLinkExtraction(unittest.TestCase):
+    def test_image_extraction(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        extracted_images = extract_markdown_images(text)
+        expected_output = [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]
+        self.assertEqual(extracted_images, expected_output)
+
+    def test_link_extraction(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        extracted_links = extract_markdown_links(text)
+        expected_output = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+        self.assertEqual(extracted_links, expected_output)
+
+    def test_no_image(self):
+        text = "[link 1](url tbh) and [link2](imagine this is also a url)"
+        extracted_images = extract_markdown_images(text)
+        expected_output = []
+        self.assertEqual(extracted_images, expected_output)
+
+    def test_no_link(self):
+        text = "here is ![image 1](url tbh) and ![image2](imagine this is also a url)"
+        extracted_links = extract_markdown_links(text)
+        expected_output = []
+        self.assertEqual(extracted_links, expected_output)
+
+    def test_multiple_images(self):
+        text = "here is ![image 1](url tbh) and ![image2](imagine this is also a url)"
+        extracted_images = extract_markdown_images(text)
+        expected_output = [("image 1", "url tbh"), ("image2", "imagine this is also a url")]
+        self.assertEqual(extracted_images, expected_output)
+
+    def test_multiple_links(self):
+        text = "here is [link 1](url tbh) and [link2](imagine this is also a url)"
+        extracted_links = extract_markdown_links(text)
+        expected_output = [("link 1", "url tbh"), ("link2", "imagine this is also a url")]
+        self.assertEqual(extracted_links, expected_output)
 
 # Run the tests
 if __name__ == "__main__":

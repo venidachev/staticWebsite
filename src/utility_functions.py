@@ -1,5 +1,6 @@
 from textnode import TextNode, TextType
 from leafnode import LeafNode
+import re
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     match text_node.type:
@@ -26,7 +27,7 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
             return_list.append(node)
             continue
         node_text_split = node.text.split(delimiter)
-        
+
         if len(node_text_split) > 1 and len(node_text_split) % 3 != 0:
             raise Exception("matching closing delimiter not found")
         
@@ -38,3 +39,17 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
             ]
             return_list.extend(new_nodes)
     return return_list
+
+def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
+    pass
+
+def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
+    pass
+
+def extract_markdown_images(text: str) -> list[tuple]:
+    pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    return re.findall(pattern, text)
+
+def extract_markdown_links(text: str) -> list[tuple]:
+    pattern = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    return re.findall(pattern, text)
