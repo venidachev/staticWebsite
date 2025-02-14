@@ -23,20 +23,22 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
     return_list = []
 
     for node in old_nodes:
-        if node.type != TextType.TEXT:
+        node_text_split = node.text.split(delimiter)
+        if node.type != TextType.TEXT or len(node_text_split) == 1:
             return_list.append(node)
             continue
-        node_text_split = node.text.split(delimiter)
-
-        if len(node_text_split) > 1 and len(node_text_split) % 3 != 0:
+        
+        if len(node_text_split) > 1 and len(node_text_split) % 2 == 0:
             raise Exception("matching closing delimiter not found")
         
-        for i in range(0, len(node_text_split), 3):
-            new_nodes = [
-                TextNode(node_text_split[i], TextType.TEXT),
-                TextNode(node_text_split[i+1], text_type),
-                TextNode(node_text_split[i+2], TextType.TEXT)
-            ]
+        if node_text_split[0]:
+            return_list.append(TextNode(node_text_split.pop(0), TextType.TEXT))
+        
+        for i in range(0, len(node_text_split), 2):
+            new_nodes = []
+            new_nodes.append(TextNode(node_text_split[i], text_type))
+            if node_text_split[i+1]:
+                new_nodes.append(TextNode(node_text_split[i+1], TextType.TEXT))
             return_list.extend(new_nodes)
     return return_list
 
@@ -85,6 +87,17 @@ def split_nodes_process(old_nodes: list[TextNode], opt: str) -> list[TextNode]:
         if text_to_split:
             return_list.append(TextNode(text_to_split, TextType.TEXT))
     return return_list
+
+def text_to_textnodes(text: str) -> list[TextNode]:
+    initial_node = TextNode(text, TextType.TEXT)
+    result_list: list[TextNode] = []
+    result_list = split_nodes_delimiter([initial_node], "**", TextType.BOLD) # bold
+    result_list = split_nodes_delimiter(result_list, "*", TextType.ITALIC) # italic
+    result_list = split_nodes_delimiter(result_list, "`", TextType.CODE) # code
+    result_list = split_nodes_link(result_list) # links
+    result_list = split_nodes_image(result_list) # images
+    return result_list
+
 
 def extract_markdown_images(text: str) -> list[tuple]:
     pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
