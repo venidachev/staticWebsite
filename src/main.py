@@ -1,15 +1,12 @@
 import os, shutil
 
-def copy_static(path, destination):
-    # Delete public/
-    if os.path.exists(destination):
-        shutil.rmtree(destination)
-    os.mkdir(destination)
+def copy_static(path, destination, delete_public=False):
+    if delete_public:
+        # Delete public/
+        if os.path.exists(destination):
+            shutil.rmtree(destination)
+        os.mkdir(destination)
 
-    copy_static_recursive(path, destination)
-
-
-def copy_static_recursive(path, destination):
     dir_content = os.listdir(path)
 
     for file in dir_content:
@@ -20,13 +17,13 @@ def copy_static_recursive(path, destination):
         if os.path.isdir(file_path):
             new_path = os.path.join(destination, file)
             os.mkdir(new_path)
-            copy_static_recursive(file_path, new_path)
+            copy_static(file_path, new_path)
 
 
 
 
 def main():
-    copy_static("./static", "./public")
+    copy_static("./static", "./public", True)
 
 
 if __name__ == "__main__":
