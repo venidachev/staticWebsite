@@ -33,12 +33,17 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
         
         if node_text_split[0]:
             return_list.append(TextNode(node_text_split.pop(0), TextType.TEXT))
-        
+        else:
+            node_text_split.pop(0)
+
         for i in range(0, len(node_text_split), 2):
             new_nodes = []
             new_nodes.append(TextNode(node_text_split[i], text_type))
-            if node_text_split[i+1]:
-                new_nodes.append(TextNode(node_text_split[i+1], TextType.TEXT))
+            try:
+                if node_text_split[i+1]:
+                    new_nodes.append(TextNode(node_text_split[i+1], TextType.TEXT))
+            except IndexError:
+                pass
             return_list.extend(new_nodes)
     return return_list
 

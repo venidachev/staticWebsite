@@ -33,6 +33,15 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             TextNode(" word", TextType.TEXT),
         ]
         self.assertEqual(new_nodes, expected_nodes)
+    def test_starts_with_delimiter(self):
+        node = TextNode("*Italics* are crazy", TextType.TEXT)
+        expected = [
+            TextNode("Italics", TextType.ITALIC),
+            TextNode(" are crazy", TextType.TEXT),
+        ]
+        output = split_nodes_delimiter([node], "*", TextType.ITALIC)
+        self.assertEqual(expected, output)
+    
     def test_no_closing_delimiter(self):
         node = TextNode("I failed to *italics this text", TextType.TEXT)
         with self.assertRaises(Exception):

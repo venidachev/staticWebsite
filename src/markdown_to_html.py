@@ -1,13 +1,13 @@
-from htmlnode import HTMLNode
+from parentnode import ParentNode
 from leafnode import LeafNode
 from block_utility import markdown_to_blocks, block_to_block_type
 from inline_utility import text_to_textnodes, text_node_to_html_node
 
-def markdown_to_html_node(markdown: str) -> HTMLNode:
+def markdown_to_html_node(markdown: str) -> ParentNode:
     # parent node's children
-    html_node_children: list[HTMLNode] = []
+    html_node_children: list[ParentNode] = []
     # parent node
-    html_node = HTMLNode(tag="div", children=html_node_children)
+    html_node = ParentNode(tag="div", children=html_node_children)
     
     blocks: list[str] = markdown_to_blocks(markdown)
 
@@ -33,50 +33,50 @@ def markdown_to_html_node(markdown: str) -> HTMLNode:
 
         
 
-def handle_paragraph(text: str) -> HTMLNode:
-    return HTMLNode("p", children=text_to_children(text))
+def handle_paragraph(text: str) -> ParentNode:
+    return ParentNode("p", children=text_to_children(text))
 
-def handle_quote(block: str) -> HTMLNode:
+def handle_quote(block: str) -> ParentNode:
     lines = [line[1:] for line in block.split("\n") if len(line) > 1]
     text = "\n".join(lines)
-    return HTMLNode("blockquote", children=text_to_children(text))
+    return ParentNode("blockquote", children=text_to_children(text.strip()))
     
-def handle_unordered_list(block: str) -> HTMLNode:
-    children: list[HTMLNode] = []
-    node = HTMLNode(tag="ul", children=children)
+def handle_unordered_list(block: str) -> ParentNode:
+    children: list[ParentNode] = []
+    node = ParentNode(tag="ul", children=children)
     # Extract list items
     lines = [line[2:] for line in block.split("\n") if len(line) > 2]
     for text in lines:
-        children.append(HTMLNode("li", children=text_to_children(text)))
+        children.append(ParentNode("li", children=text_to_children(text.strip())))
     return node
 
-def handle_ordered_list(block: str) -> HTMLNode:
-    children: list[HTMLNode] = []
-    node = HTMLNode(tag="ol", children=children)
+def handle_ordered_list(block: str) -> ParentNode:
+    children: list[ParentNode] = []
+    node = ParentNode(tag="ol", children=children)
     # Extract list items
     lines = [line.split(". ", 1)[1] for line in block.split("\n") if ". " in line]
     for text in lines:
-        children.append(HTMLNode("li", children=text_to_children(text)))
+        children.append(ParentNode("li", children=text_to_children(text.strip())))
     return node
     
 
-def handle_code(block: str) -> HTMLNode:
+def handle_code(block: str) -> ParentNode:
     # Example input: ```Code!```
-    text = block.strip("```")
+    text = block.strip("```").strip()
     child = LeafNode("code", text)
-    return HTMLNode("pre", children=[child])
+    return ParentNode("pre", children=[child])
 
-def handle_heading(block: str) -> HTMLNode:
+def handle_heading(block: str) -> ParentNode:
     # Example input: ### Heading
     # Where # 1-6
     # Split into hashes and 
     hashes, text = block.split(" ", 1)
     tag = f"h{len(hashes)}"
-    return HTMLNode(tag, children=text_to_children(text))
+    return ParentNode(tag, children=text_to_children(text.strip()))
    
-def text_to_children(text: str) -> list[HTMLNode]:
-    nodes: list[HTMLNode] = []
-    text_nodes_list = text_to_textnodes(text)
+def text_to_children(text: str) -> list[ParentNode]:
+    nodes: list[ParentNode] = []
+    text_nodes_list = text_to_textnodes(text.strip())
     for text_node in text_nodes_list:
         nodes.append(text_node_to_html_node(text_node))
     return nodes
