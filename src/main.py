@@ -1,5 +1,5 @@
 import os, shutil
-from page_utility import generate_page
+from page_utility import generate_page_recursive
 
 def copy_static(path, destination, delete_public=False):
     if delete_public:
@@ -25,7 +25,7 @@ def copy_static(path, destination, delete_public=False):
 
 def main():
     copy_static("./static", "./public", True)
-    generate_page("content/index.md", "template.html", "public/index.html")
+    generate_page_recursive("content", "template.html", "public")
 
 if __name__ == "__main__":
     main()
